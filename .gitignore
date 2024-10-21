@@ -52,4 +52,7 @@ Mkfile.old
 dkms.conf
 
 # Other
+.gitignore
+tasks.json
+launch.json
 *.code-workspace
