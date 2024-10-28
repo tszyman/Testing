@@ -28,21 +28,12 @@ int	main()
 	int	i;
 
 	i = 0;
-	printf("Please enter some value: ");
-	scanf("%d", &x);
 	while (i < 3)
 	{
 		if(pipe(fd[i]) < 0)
 			return 1;
+		i++;
 	}
-	close(fd[0][0]);	//parent will not need to read on pipe0
-	close(fd[1][0]);	//parent will not need to read on pipe1
-	close(fd[1][1]);	//parent will not need to write on pipe1
-	close(fd[2][0]);	//parent will not need to read on pipe2
-	close(fd[2][1]);	//parent will not need to write on pipe2
-	if (write(fd[0][1], &x, sizeof(int)) < 1)
-		return 4;
-	close(fd[0][1]);	//parent finished writing on pipe0, so can be closed
 	pid1 = fork();
 	if (pid1 == -1)
 		return 2;
@@ -56,11 +47,12 @@ int	main()
 		close(fd[2][1]);
 		if (read(fd[0][0], &x, sizeof(int)) < 0)
 			return 5;
-		close(fd[0][0]);
-		x +=5;
+		x += 5;
 		if (write(fd[1][1], &x, sizeof(int)) < 0)
 			return 6;
+		close(fd[0][0]);
 		close(fd[1][1]);
+		return 0;
 	}
 
 	pid2 = fork();
@@ -76,15 +68,30 @@ int	main()
 		close(fd[2][0]);
 		if (read(fd[1][0], &x, sizeof(int)) < 0)
 			return 7;
-		close(fd[1][0]);
-		x +=5;
+		x += 5;
 		if (write(fd[2][1], &x, sizeof(int)) < 0)
 			return 8;
+		close(fd[1][0]);
 		close(fd[2][1]);
+		return 0;
 	}
 
-waitpid(pid1, NULL, 0);
-waitpid(pid2, NULL, 0);
+	//Parent process
+	close(fd[0][0]);	//parent will not need to read on pipe0
+	close(fd[1][0]);	//parent will not need to read on pipe1
+	close(fd[1][1]);	//parent will not need to write on pipe1
+	close(fd[2][1]);	//parent will not need to write on pipe2
+	printf("Please enter some value: ");
+	scanf("%d", &x);
+	if (write(fd[0][1], &x, sizeof(int)) < 1)
+		return 4;
+	if (read(fd[2][0], &x, sizeof(int)) < 0)
+		return 9;
+	printf("Final result is %d\n", x);
+	close(fd[0][1]);	//parent finished writing on pipe0, so can be closed
+	close(fd[2][0]);
+	waitpid(pid1, NULL, 0);
+	waitpid(pid2, NULL, 0);
 
 	return 0;
 }
