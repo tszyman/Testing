@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include <pthread.h>
+#include <errno.h>
 
 /* Difference beteen trylock and lock in C */
 
@@ -10,10 +11,16 @@ pthread_mutex_t mutex;
 
 void	*routine()
 {
-	pthread_mutex_lock(&mutex);
-	printf("Got lock\n");
-	sleep(1);
-	pthread_mutex_unlock(&mutex);
+	if (pthread_mutex_trylock(&mutex) == 0)			//trylock returns 0 if lock succeeded, EBUSY (16) if not
+	{
+		printf("Got lock\n");
+		sleep(1);
+		pthread_mutex_unlock(&mutex);
+	}
+	else
+	{
+		printf("Didn't get lock\n");
+	}
 	return 0;
 }
 
