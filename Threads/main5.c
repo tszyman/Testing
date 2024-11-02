@@ -40,6 +40,11 @@ int	main()
 			return 1;
 		}
 		printf("Thread %d has started.\n", i);
+		i++;
+	}
+	i = 0;
+	while (i < 4)
+	{
 		if (pthread_join(th[i], NULL) != 0)
 			return 2;
 		printf("Thread %d has finished execution.\n", i);
