@@ -20,6 +20,7 @@ void	*fuel_filling()
 		fuel += 15;
 		printf("Filling fuel... %d\n", fuel);
 		pthread_mutex_unlock(&mutex_fuel);
+		sleep(1);
 		i++;
 	}
 	return 0;
