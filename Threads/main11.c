@@ -4,7 +4,7 @@
 
 #include <pthread.h>
 
-/* Condition variables in C */
+/* Signaling for condition variables (signal vs broadcast) */
 
 pthread_mutex_t mutex_fuel;
 pthread_cond_t cond_fuel;
@@ -18,10 +18,10 @@ void	*fuel_filling()
 	while (i < 5)
 	{
 		pthread_mutex_lock(&mutex_fuel);
-		fuel += 15;
+		fuel += 30;
 		printf("Filling fuel... %d\n", fuel);
 		pthread_mutex_unlock(&mutex_fuel);
-		pthread_cond_signal(&cond_fuel);
+		pthread_cond_broadcast(&cond_fuel);			//signal -> sent to one thread; broadcast -> sent to all threads
 		sleep(1);
 		i++;
 	}
@@ -47,16 +47,16 @@ void	*car()
 
 int	main()
 {
-	pthread_t	th[2];
+	pthread_t	th[6];
 	int			i;
 	
 	fuel = 0;
 	i = 0;
 	pthread_mutex_init(&mutex_fuel, NULL);
 	pthread_cond_init(&cond_fuel, NULL);
-	while (i < 2)
+	while (i < 6)
 	{
-		if (i == 1)
+		if (i == 4 || i == 5)
 		{
 			if (pthread_create(&th[i], NULL, &fuel_filling, NULL) != 0)
 				perror("Failed to create a thread");
@@ -68,7 +68,7 @@ int	main()
 		i++;
 	}
 	i = 0;
-	while (i < 2)
+	while (i < 6)
 	{
 		if (pthread_join(th[i], NULL) != 0)
 			perror("Failed to join thread");
