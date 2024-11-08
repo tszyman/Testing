@@ -10,24 +10,41 @@
 /* 	chefs = threads
 	stove = shared data (+mutex) */
 
-pthread_mutex_t	stove_mutex;
-int				stove_fuel;
+pthread_mutex_t	stove_mutex[4];
+int				stove_fuel[4] = {100, 100, 100, 100};
 
 void	*routine()
 {
 	int	fuel_needed;
+	int	i;
 
-	pthread_mutex_lock(&stove_mutex);
-	fuel_needed = (rand() % 30);
-	if (stove_fuel - fuel_needed < 0)
-		printf("No more fuel. Going home.\n");
-	else
+	i = 0;
+	while (i < 4)
 	{
-		stove_fuel -= fuel_needed;
-		usleep(500000);
-		printf("Fuel left: %d\n", stove_fuel);
+		if (pthread_mutex_trylock(&stove_mutex[i]) == 0)
+		{
+			fuel_needed = (rand() % 30);
+			if (stove_fuel[i] - fuel_needed < 0)
+				printf("No more fuel. Going home.\n");
+			else
+			{
+				stove_fuel[i] -= fuel_needed;
+				usleep(500000);
+				printf("Fuel left: %d\n", stove_fuel[i]);
+			}
+			pthread_mutex_unlock(&stove_mutex[i]);
+			break;
+		} else
+		{
+			if (i == 3)
+			{
+				printf("No stove available yet, waiting...\n");
+				usleep(300000);
+				i = 0;
+			}
+		}
+		i++;
 	}
-	pthread_mutex_unlock(&stove_mutex);
 	return 0;
 }
 
@@ -37,8 +54,12 @@ int	main()
 	int			i;
 
 	srand(time(NULL));
-	pthread_mutex_init(&stove_mutex, NULL);
-	stove_fuel = 100;
+	i = 0;
+	while (i < 4)
+	{
+		pthread_mutex_init(&stove_mutex[i], NULL);
+		i++;
+	}
 	i = 0;
 	while ( i < 10)
 	{
@@ -54,6 +75,11 @@ int	main()
 			perror("Failed to join thread");
 		i++;
 	}
-	pthread_mutex_destroy(&stove_mutex);
+	i = 0;
+	while ( i < 4)
+	{
+		pthread_mutex_destroy(&stove_mutex[i]);
+		i++;
+	}
 	return 0;
 }
