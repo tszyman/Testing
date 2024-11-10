@@ -29,12 +29,12 @@ int	main()
 		i++;
 	}
 
-	i = 0;
-	while (i < THREAD_NUM)
-	{
-		if (pthread_join(th[i], NULL) != 0)
-			perror("Error joining thread");
-		i++;
-	}
+	// i = 0;
+	// while (i < THREAD_NUM)
+	// {
+	// 	if (pthread_join(th[i], NULL) != 0)
+	// 		perror("Error joining thread");
+	// 	i++;
+	// }
 	pthread_exit(0);
 }
