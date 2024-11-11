@@ -17,15 +17,19 @@ void	*routine()
 	fuel += 50;
 	printf("Incremented fuel to: %d\n", fuel);
 	pthread_mutex_unlock(&mutex_fuel);
+	pthread_mutex_unlock(&mutex_fuel);
 	return 0;
 }
 
 int	main()
 {
-	pthread_t	th[THREAD_NUM];
-	int			i;
+	pthread_t				th[THREAD_NUM];
+	pthread_mutexattr_t		recursive_mutex_attr;
+	int						i;
 
-	pthread_mutex_init(&mutex_fuel, NULL);
+	pthread_mutexattr_init(&recursive_mutex_attr);
+	pthread_mutexattr_settype(&recursive_mutex_attr, PTHREAD_MUTEX_RECURSIVE_NP);
+	pthread_mutex_init(&mutex_fuel, &recursive_mutex_attr);
 	i = 0;
 	while (i < THREAD_NUM)
 	{
@@ -42,6 +46,7 @@ int	main()
 		i++;
 	}
 	printf("Fuel: %d\n", fuel);
+	pthread_mutexattr_destroy(&recursive_mutex_attr);
 	pthread_mutex_destroy(&mutex_fuel);
 	return 0;
 }
