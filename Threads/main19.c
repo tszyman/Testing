@@ -15,18 +15,18 @@ int				water = 50;
 
 void	*routine()
 {
-	if (rand() % 2 == 0)
-	{
+//	if (rand() % 2 == 0)
+//	{
 		pthread_mutex_lock(&mutex_fuel);				// one thread might lock fuel, while the other starts with locking the water
 		sleep(1);
 		pthread_mutex_lock(&mutex_water);				// but here - the one will wait until water is ready to be locked, but the other process waits for fuel to be ready to be locked.
-	}													// it will never happen, so both proceses will wait for each other.
-	else
-	{
-		pthread_mutex_lock(&mutex_water);
-		sleep(1);
-		pthread_mutex_lock(&mutex_fuel);
-	}
+//	}													// it will never happen, so both proceses will wait for each other.
+//	else
+//	{
+//		pthread_mutex_lock(&mutex_water);
+//		sleep(1);
+//		pthread_mutex_lock(&mutex_fuel);
+//	}
 	fuel += 50;
 	water = fuel;
 	printf("Incremented fuel to: %d set water to %d\n", fuel, water);
