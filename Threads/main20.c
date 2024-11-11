@@ -1,0 +1,47 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+
+#include <pthread.h>
+#define THREAD_NUM 8
+
+pthread_mutex_t	mutex_fuel;
+int				fuel = 50;
+
+/* Recursive mutexes */
+
+void	*routine()
+{
+	pthread_mutex_lock(&mutex_fuel);
+	pthread_mutex_lock(&mutex_fuel);
+	fuel += 50;
+	printf("Incremented fuel to: %d\n", fuel);
+	pthread_mutex_unlock(&mutex_fuel);
+	return 0;
+}
+
+int	main()
+{
+	pthread_t	th[THREAD_NUM];
+	int			i;
+
+	pthread_mutex_init(&mutex_fuel, NULL);
+	i = 0;
+	while (i < THREAD_NUM)
+	{
+		if (pthread_create(&th[i], NULL, &routine, NULL) != 0)
+			perror("Failed to create thread");
+		i++;
+	}
+
+	i = 0;
+	while (i < THREAD_NUM)
+	{
+		if (pthread_join(th[i], NULL) != 0)
+			perror("Failed to jion thread");
+		i++;
+	}
+	printf("Fuel: %d\n", fuel);
+	pthread_mutex_destroy(&mutex_fuel);
+	return 0;
+}
