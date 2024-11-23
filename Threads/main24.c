@@ -5,22 +5,19 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-#define THREAD_NUM 4
+#define THREAD_NUM 1
 
 sem_t			sem_fuel;
 pthread_mutex_t	mutex_fuel;
-int				fuel;
+int				*fuel;
 
 /* Binary semaphores */
 
 void	*routine()
 {
-	//pthread_mutex_lock(&mutex_fuel);
-	sem_wait(&sem_fuel);
-	fuel += 50;
-	printf("Current value is %d\n", fuel);
+	*fuel += 50;
+	printf("Current value is %d\n", *fuel);
 	sem_post(&sem_fuel);
-	//pthread_mutex_unlock(&mutex_fuel);
 	return 0;
 }
 
@@ -29,7 +26,8 @@ int	main()
 	pthread_t	th[THREAD_NUM];
 	int			i;
 
-	fuel = 50;
+	fuel = malloc(sizeof(int));
+	*fuel = 50;
 	pthread_mutex_init(&mutex_fuel, NULL);
 	sem_init(&sem_fuel, 0, 1);
 	i = 0;
@@ -39,8 +37,10 @@ int	main()
 			perror("Error creating thread");	
 		i++;
 	}
+	sem_wait(&sem_fuel);
+	printf("Deallocating fuel\n ");
+	free(fuel);
 	i = 0;
-
 	while (i < THREAD_NUM)
 	{
 		if (pthread_join(th[i], NULL) != 0)
