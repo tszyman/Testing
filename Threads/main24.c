@@ -37,7 +37,7 @@ int	main()
 			perror("Error creating thread");	
 		i++;
 	}
-	sem_wait(&sem_fuel);
+	sem_wait(&sem_fuel);					//makes sure that will wait here for routine() to be executed (or other resource to be used)
 	printf("Deallocating fuel\n ");
 	free(fuel);
 	i = 0;
