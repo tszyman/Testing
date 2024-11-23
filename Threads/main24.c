@@ -3,9 +3,11 @@
 #include <unistd.h>
 
 #include <pthread.h>
+#include <semaphore.h>
 
 #define THREAD_NUM 4
 
+sem_t			sem_fuel;
 pthread_mutex_t	mutex_fuel;
 int				fuel;
 
@@ -13,10 +15,12 @@ int				fuel;
 
 void	*routine()
 {
-	pthread_mutex_lock(&mutex_fuel);
+	//pthread_mutex_lock(&mutex_fuel);
+	sem_wait(&sem_fuel);
 	fuel += 50;
 	printf("Current value is %d\n", fuel);
-	pthread_mutex_unlock(&mutex_fuel);
+	sem_post(&sem_fuel);
+	//pthread_mutex_unlock(&mutex_fuel);
 	return 0;
 }
 
@@ -27,6 +31,7 @@ int	main()
 
 	fuel = 50;
 	pthread_mutex_init(&mutex_fuel, NULL);
+	sem_init(&sem_fuel, 0, 1);
 	i = 0;
 	while (i < THREAD_NUM)
 	{
@@ -42,6 +47,7 @@ int	main()
 			perror("Error joining threads");
 		i++;
 	}
+	sem_destroy(&sem_fuel);
 	pthread_mutex_destroy(&mutex_fuel);
 	return 0;
 }
