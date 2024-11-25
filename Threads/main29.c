@@ -12,7 +12,8 @@
 // Our representation of the task to be dealt with
 typedef struct Task
 {
-	void (*task_function)();
+	void (*task_function)(int, int);
+	int	arg1, arg2;
 } Task;
 
 // Task Queue will hold the tasks to bo done of threads to reach from
@@ -22,10 +23,8 @@ int		task_count = 0;
 pthread_mutex_t	mutex_queue;	//will protect elements of the queue from being taken by two threads at the same time
 pthread_cond_t	cond_queue;
 
-void	sum_and_product()
+void	sum_and_product(int a, int b)
 {
-	int a = rand() % 100;
-	int b = rand() % 100;
 	int sum = a + b;
 	int prod = a * b;
 	printf("Sum and product of %d and %d is %d and %d respectively\n", a, b, sum, prod);
@@ -34,7 +33,7 @@ void	sum_and_product()
 // function executing the task
 void	execute_task(Task *task)
 {
-	task->task_function();
+	task->task_function(task->arg1, task->arg2);
 }
 void	submit_task(Task task)
 {
@@ -88,7 +87,9 @@ int	main()
 	while ( i < 100)
 	{
 		Task	t = {
-			.task_function = &sum_and_product
+			.task_function = &sum_and_product,
+			.arg1 = rand() % 100,
+			.arg2 = rand() % 100
 		};
 		submit_task(t);
 		i++;
