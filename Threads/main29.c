@@ -23,11 +23,17 @@ int		task_count = 0;
 pthread_mutex_t	mutex_queue;	//will protect elements of the queue from being taken by two threads at the same time
 pthread_cond_t	cond_queue;
 
-void	sum_and_product(int a, int b)
+void	sum(int a, int b)
 {
 	int sum = a + b;
-	int prod = a * b;
-	printf("Sum and product of %d and %d is %d and %d respectively\n", a, b, sum, prod);
+	printf("Sum of %d and %d is %d\n", a, b, sum);
+
+}
+void	product(int a, int b)
+{
+	int sum = a * b;
+	printf("Product of %d and %d is %d\n", a, b, sum);
+
 }
 
 // function executing the task
@@ -87,7 +93,7 @@ int	main()
 	while ( i < 100)
 	{
 		Task	t = {
-			.task_function = &sum_and_product,
+			.task_function = i % 2 == 0 ? &sum : &product,
 			.arg1 = rand() % 100,
 			.arg2 = rand() % 100
 		};
